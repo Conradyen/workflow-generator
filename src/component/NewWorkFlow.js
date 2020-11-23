@@ -10,14 +10,19 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
 const nameMap = {"1":"data loader","2":"Linear regression","3":"SVM"};
+const analyticsMap = {"12340":"/analytics_0","12341":"/analytics_1","12342":"/analytics_2",
+                      "12343":"/analytics_3","12344":"/analytics_4","12345":"/analytics_5",
+                    "12346":"/analytics_6","12347":"/analytics_7","12348":"/analytics_8","12349":"/analytics_9"}
 const useStyles = makeStyles((theme) => ({
   root: {
      alignContent: "center",
     textAlign: "center",
     "& > *": {
-      margin: theme.spacing(1),
+      margin: "5px",
       width: "100ch",
     },
   },
@@ -30,8 +35,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     justifyContent: "center",
     "& > *": {
-      margin: theme.spacing(1),
-      width: "25ch",
+      margin: "5px",
+      width: "20ch",
     },
   },lists:{
       marginLeft: "auto",
@@ -62,17 +67,22 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
     const classes = useStyles();
     const [isStart,setIsStart] = useState(false);
     const [isValid,setIsValid] = useState(true);
-    
+    const [launchNewContainer,setLaunchNewContainer] = useState(false);
     const [specification,setSpecification] = useState([]);
+    const [visited,setVisited] = useState([]);
     const [isLoading,setIsLoading] = useState(false);
     const [placeHolder,setPlaceHolder] = useState("");
     
     const handlePlaceHolderChange = (e) => {
         setPlaceHolder(e.target.value);
     };
+    const handleModeChange = (event) => {
+      setLaunchNewContainer(event.target.checked);
+    };
     
     const checkInPut = (input) =>{
         var set = new Set(["1","2","3"]); 
+        let vis = new Set(visited);
         let temp = input.split(',');
         console.log(temp);
         let i = 0;
@@ -81,7 +91,15 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
             if(!set.has(temp[i])){
                 return false;
             }
+            //check visited
+            if(vis.has(temp[i])){
+              return false;
+            }else{
+              vis.add(temp[i]);
+            }
         }
+        //update visited
+        setVisited(Array.from(vis));
         return true;
     }
     const onAddBTNClick = async () => {
@@ -106,24 +124,31 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
         for(i = 0;i < specification.length;i++){
             workflow_specification.push(specification[i].split(','));
         }
+        let workflow = workFlowName==1? "employee":"hospital";
         console.log(workflow_specification);
         //TODO
         setIsLoading(true);
+        let endpoint = (launchNewContainer===true)? address+"/noreuse/request":address+"/reuse/request";
+        console.log(endpoint);
         await axios
-        .post(address+"/request",{client_name:clientName,
-        workflow:workFlowName,
+        .post(endpoint,{client_name:clientName,
+        workflow,
         workflow_specification
-        },{timeout:20000}
-        ).then((res)=>{
+        },{timeout:250*1000})
+        .then((res)=>{
             console.log(res);
-            setAnalyticsAddress(res.data.analytics);
-        }).catch((error) => {
+            if(res.status === 200){
+              const split = res.data.split(":");
+              setAnalyticsAddress(`http://10.176.67.91${analyticsMap[split[1]]}`);
+            }
+        })
+        .catch((error) => {
           console.log(error);
         });
         setIsLoading(false);
         setIsStart(true);
         console.log({client_name:clientName,
-        workflow:workFlowName,
+        workflow,
         workflow_specification
         })
     }
@@ -132,6 +157,7 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
         <div className={classes.root}>
         <Grid container spacing={3}>
           <Grid item xs={12} className={classes.innerdiv}>
+           
             <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -149,6 +175,17 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
               onChange={handleClientNameChange}
               disabled={isStart}
             />
+            <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={launchNewContainer}
+                    onChange={handleModeChange}
+                    name="checked"
+                    color="primary"
+                  />
+                }
+                label="noreuse container"
+              />
         </Grid>
         <Grid item xs={6} className={classes.submit}>
           <div>
@@ -180,7 +217,7 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
           color="#00BFFF"
           height={30}
           width={30}
-
+          timeout={250000} 
         />:
           <Button
             className={classes.btn}

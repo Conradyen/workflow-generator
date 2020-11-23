@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import {  makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -10,7 +10,33 @@ const day = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 const durationChoice = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"];
 const checkin_time = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00",
                          "06:30","07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"];
-
+const timeChoice = [
+  "8:00",
+  "8:30",
+  "9:00",
+  "9:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
+];
 const useStyles = makeStyles((theme) => ({
   root: {
     alignContent: "center",
@@ -96,6 +122,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
   const [itemDistinctAbnormal,setItemDistinctAbnormal] = useState(0.5);
   const [checkInDateTime,setCheckInDateTime] = useState(checkin_time[0]);
   const [dayOfWeek,setDayOfWeek] = useState(day[0]);
+  const [time, setTime] = useState("8:00");
   const [suspend, setSuspend] = useState(false);
   const [numRequest, setNumRequest] = useState(100);
   const [requestDuration, setRequestDuration] = useState(1000);
@@ -143,6 +170,9 @@ export const Hospital = ({address,clientName,workFlowName}) => {
   const handleItemDistinctAbnormalChange = (e) =>{
     setItemDistinctAbnormal(e.target.value);
   }
+  const handleTimeChange = (e) => {
+    setTime(e.target.value);
+  };
 
   const handleDayOfWeekChange = (e) => {
     setDayOfWeek(e.target.value);
@@ -150,28 +180,10 @@ export const Hospital = ({address,clientName,workFlowName}) => {
   const handleDateTimeChange = (e) => {
     setCheckInDateTime(e.target.value);
   };
-  const randomSet = () => {
-    setPatient(Math.floor(Math.random() * 1000));
-    setHospitalFlag(hospital_expire_flag.sample());
-    setInsurance(insuranceChoice.sample());
-    setDuration(durationChoice.sample());
-    setNumInICU(randomUniform(0.142857143, 1));
-    setAmount(randomUniform(-0.013434843, 1));
-    setRate(randomUniform(0, 1));
-    setTotalItems(randomUniform(0.093117409, 1));
-    setValue(randomUniform(0.000110609, 1));
-    setDilutionValue(randomUniform(0, 1));
-    setAbnormalCount(randomUniform(0.001908852, 1));
-    setItemDistinctAbnormal(randomUniform(0.059405941, 1));
-    setCheckInDateTime(checkin_time.sample());
-    setDayOfWeek(day.sample());
-  };
 
-
-  const onStartBTNClick = async() => {
-    setSuspend(true);
-    let n = numRequest;
-    while (n > 0) {
+   useEffect(() => {
+    async function makeRequest(){
+    if(suspend){
       await axios
         .post(address+"/predict", {
           "requestID":requestID,
@@ -215,10 +227,39 @@ export const Hospital = ({address,clientName,workFlowName}) => {
         .catch((error) => {
           console.log(error);
         });
+    }}
+    makeRequest();
+  }, [numRequest])
+
+
+  const randomSet = () => {
+    setPatient(Math.floor(Math.random() * 1000));
+    setHospitalFlag(hospital_expire_flag.sample());
+    setInsurance(insuranceChoice.sample());
+    setDuration(durationChoice.sample());
+    setNumInICU(randomUniform(0.142857143, 1));
+    setAmount(randomUniform(-0.013434843, 1));
+    setRate(randomUniform(0, 1));
+    setTotalItems(randomUniform(0.093117409, 1));
+    setValue(randomUniform(0.000110609, 1));
+    setDilutionValue(randomUniform(0, 1));
+    setAbnormalCount(randomUniform(0.001908852, 1));
+    setItemDistinctAbnormal(randomUniform(0.059405941, 1));
+    setCheckInDateTime(checkin_time.sample());
+    setDayOfWeek(day.sample());
+    setTime(timeChoice.sample());
+  };
+
+
+  const onStartBTNClick = async() => {
+    setSuspend(true);
+    let n = numRequest;
+    while (n > 0) {
       randomSet();
       await new Promise((r) => setTimeout(r, requestDuration));
       n -= 1;
       requestID+=1;
+      setNumRequest(n);
     }
     setSuspend(false);
   };
@@ -281,7 +322,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
           />
           <TextField
             id="standard-basic"
-            label="check in time"
+            label="total items"
             value={totalItems}
             onChange={handleTotalItemsChange}
             disabled={suspend}
@@ -330,6 +371,13 @@ export const Hospital = ({address,clientName,workFlowName}) => {
             label="check in time"
             value={checkInDateTime}
             onChange={handleDateTimeChange}
+            disabled={suspend}
+          />
+          <TextField
+            id="standard-basic"
+            label="time"
+            value={time}
+            onChange={handleTimeChange}
             disabled={suspend}
           />
         </div>

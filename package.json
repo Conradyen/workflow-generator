@@ -2,7 +2,6 @@
   "name": "demotool",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://conradyen.github.io/workflow-generator",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@testing-library/jest-dom": "^4.2.4",

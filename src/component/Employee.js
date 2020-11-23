@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -141,20 +141,9 @@ export const Employee = ({address,clientName,workFlowName}) => {
     setNumRequest(e.target.value);
     // console.log(numRequest);
   };
-  const randomSet = () => {
-    setEmployeeID(Math.floor(Math.random() * 50));
-    setDeptType(departmentTypeChoice.sample());
-    setGender(genderTypeChoice.sample());
-    setRace(raceTypeChoice.sample());
-    setDayOfWeek(dayOfWeekChoice.sample());
-    setDuration(Math.floor(Math.random() * 8).toString());
-    setCheckInDateTime(checkInTimeChoice.sample());
-    setTime(timeChoice.sample());
-  };
-  const onStartBTNClick = async() => {
-    setSuspend(true);
-    let n = numRequest;
-    while (n > 0) {
+  useEffect(() => {
+    async function makeRequest(){
+    if(suspend){
       await axios
         .post(address+"/predict", {
           "requestID":requestID,
@@ -186,10 +175,29 @@ export const Employee = ({address,clientName,workFlowName}) => {
         .catch((error) => {
           console.log(error);
         });
+    }}
+    makeRequest();
+  }, [numRequest])
+  const randomSet = () => {
+    setEmployeeID(Math.floor(Math.random() * 50));
+    setDeptType(departmentTypeChoice.sample());
+    setGender(genderTypeChoice.sample());
+    setRace(raceTypeChoice.sample());
+    setDayOfWeek(dayOfWeekChoice.sample());
+    setDuration(Math.floor(Math.random() * 8).toString());
+    setCheckInDateTime(checkInTimeChoice.sample());
+    setTime(timeChoice.sample());
+  };
+
+  const onStartBTNClick = async() => {
+    setSuspend(true);
+    let n = numRequest;
+    while (n > 0) {
       randomSet();
       await new Promise((r) => setTimeout(r, requestDuration));
       n -= 1;
       requestID+=1;
+      setNumRequest(n);
     }
     setSuspend(false);
   };

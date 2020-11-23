@@ -49,7 +49,6 @@ function App() {
   const handleAddressChange = (e) => {
         setAddress(e.target.value);
   };
-    
   return (
     <div className="App">
       <h2>Cloud Computing Demo</h2>

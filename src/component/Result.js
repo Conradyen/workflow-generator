@@ -93,7 +93,7 @@ export const Result = ({analyticsAddress,handleAnalyticsAddressChange}) =>{
         });
       // await new Promise((r) => setTimeout(r, 1000));
   };
-
+  //handle null value
 
   return (
     <>

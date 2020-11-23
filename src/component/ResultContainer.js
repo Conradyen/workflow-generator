@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const parseResponseData = (data) =>{
+const parseResponseData = (id,data) =>{
     console.log(data);
   try{
     let dlIDX = 0;
@@ -39,6 +39,11 @@ const parseResponseData = (data) =>{
             svmIDX = i;
             svmPred = data[i].pred;
         }
+    }
+    if(id === 1 && data.length >= 3){
+        dlIDX = 0;
+        lrIDX = 1;
+        svmIDX = 2;
     }
     const dataLoaderTime = `${((data[dlIDX].end_time - data[dlIDX].start_time)*1000).toFixed(3)}`;
     const logisticRegressionTime =  `${((data[lrIDX].end_time - data[lrIDX].start_time)*1000).toFixed(3)}`;
@@ -62,7 +67,7 @@ export const ResultContainer = ({i,workFlowName,data}) => {
         logisticRegressionTime,
         SVMTIme,
         SVMResult,
-        LogisticRegressionResult] = parseResponseData(data);
+        LogisticRegressionResult] = parseResponseData(i,data);
     return (
         <>
              <div className={classes.root}>
@@ -74,14 +79,14 @@ export const ResultContainer = ({i,workFlowName,data}) => {
                 <div className={classes.col}>
                     <h4 className={classes.title}>Logistic Regression</h4>
                     <div>{`Time spend (ms) : ${logisticRegressionTime}`}</div>
-                    <div>{workFlowName==="employee"? `Employee Exit Time : ${LogisticRegressionResult}`:
-                    `Patient Exit Time : ${LogisticRegressionResult}`}</div>
+                    {LogisticRegressionResult === -1? null:<div>{workFlowName==="employee"? `Employee Exit Time : ${LogisticRegressionResult}`:
+                    `Patient Exit Time : ${LogisticRegressionResult}`}</div>}
                 </div>
                 <div className={classes.col}>
                     <h4 className={classes.title}>SVM</h4>
                     <div>{`Time spend (ms) : ${SVMTIme}`}</div>
-                    <div>{workFlowName==="employee"? `Number of Employees : ${SVMResult}`:
-                    `Number of Patient : ${SVMResult}`}</div>
+                    {SVMResult === -1? null: <div>{workFlowName==="employee"? `Number of Employees : ${SVMResult}`:
+                    `Number of Patient : ${SVMResult}`}</div>}
                 </div>
           </div>
         </>
