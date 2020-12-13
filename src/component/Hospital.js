@@ -112,7 +112,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
   const [hospitalFlag,setHospitalFlag] = useState(1);
   const [insurance,setInsurance] = useState(1)
   const [duration,setDuration] = useState("8");
-  const [numInICU,setNumInICU] = useState(0.5);
+  const [numInICU,setNumInICU] = useState(2);
   const [amount,setAmount] = useState(0);
   const [rate,setRate] = useState(0.5);
   const [totalItems,setTotalItems] = useState(0.5);
@@ -204,6 +204,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
           item_distinct_abnormal :itemDistinctAbnormal,
           checkin_datetime :checkInDateTime,
           day_of_week :dayOfWeek,
+          time:time,
         }}).then(console.log( {
           "requestID":requestID,
           "client_name": clientName ,
@@ -223,6 +224,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
           item_distinct_abnormal :itemDistinctAbnormal,
           checkin_datetime :checkInDateTime,
           day_of_week :dayOfWeek,
+          time:time,
         }}))
         .catch((error) => {
           console.log(error);
@@ -237,7 +239,7 @@ export const Hospital = ({address,clientName,workFlowName}) => {
     setHospitalFlag(hospital_expire_flag.sample());
     setInsurance(insuranceChoice.sample());
     setDuration(durationChoice.sample());
-    setNumInICU(randomUniform(0.142857143, 1));
+    setNumInICU(Math.floor(Math.random() * Math.floor(40)));
     setAmount(randomUniform(-0.013434843, 1));
     setRate(randomUniform(0, 1));
     setTotalItems(randomUniform(0.093117409, 1));

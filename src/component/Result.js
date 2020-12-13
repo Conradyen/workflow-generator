@@ -60,7 +60,7 @@ const parseResponseData = (data) =>{
 
 }
 
-export const Result = ({analyticsAddress,handleAnalyticsAddressChange}) =>{
+export const Result = ({workFlowName,analyticsAddress,handleAnalyticsAddressChange}) =>{
   const classes = useStyles();
   const [res, setRes] = useState([]);
   const [wfname,setwfname] = useState("");
@@ -99,7 +99,7 @@ export const Result = ({analyticsAddress,handleAnalyticsAddressChange}) =>{
     <>
       <h3>{wfname&&client? `workflow name : ${wfname} | client name : ${client}`:null}</h3>
       <div className={classes.root}>
-        <Button variant="contained" onClick={onGetNameBTNClick}>name</Button>
+        {/* <Button variant="contained" onClick={onGetNameBTNClick}>name</Button> */}
         <Button variant="contained" onClick={onRefreshBTNClick}>refresh</Button>
         <div className={classes.address}>
         <TextField
@@ -112,7 +112,7 @@ export const Result = ({analyticsAddress,handleAnalyticsAddressChange}) =>{
       </div></div>
       <div className={classes.outdiv}>
         {res.map((data, idx) => (
-          <>{<ResultContainer key={idx} i={data.requestID} workFlowName={wfname} data={data.analytics}/>}</>
+          <>{<ResultContainer key={idx} i={data.requestID} workFlowName={workFlowName} data={data.analytics}/>}</>
         ))}
       </div>
       

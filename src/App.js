@@ -79,7 +79,7 @@ function App() {
       </Grid>
       
       <Grid item xs={12}>
-      <Result analyticsAddress={analyticsAddress} handleAnalyticsAddressChange={handleAnalyticsAddressChange}/>
+      <Result workFlowName={workFlowName}analyticsAddress={analyticsAddress} handleAnalyticsAddressChange={handleAnalyticsAddressChange}/>
       </Grid>
       </Grid>
       

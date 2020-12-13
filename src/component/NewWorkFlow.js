@@ -13,7 +13,7 @@ import Select from '@material-ui/core/Select';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
-const nameMap = {"1":"data loader","2":"Linear regression","3":"SVM"};
+const nameMap = {"1":"data loader","2":"Logistic regression","3":"SVM"};
 const analyticsMap = {"12340":"/analytics_0","12341":"/analytics_1","12342":"/analytics_2",
                       "12343":"/analytics_3","12344":"/analytics_4","12345":"/analytics_5",
                     "12346":"/analytics_6","12347":"/analytics_7","12348":"/analytics_8","12349":"/analytics_9"}
@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
+const workflowNameMap = {1:"employee",2:"hospital"};
 export const NewWorkFlow = ({handleWorkFlowNameChange,
         handleClientNameChange,
         workFlowName,
@@ -72,6 +72,7 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
     const [visited,setVisited] = useState([]);
     const [isLoading,setIsLoading] = useState(false);
     const [placeHolder,setPlaceHolder] = useState("");
+    const [errorText,setErrorText] = useState("");
     
     const handlePlaceHolderChange = (e) => {
         setPlaceHolder(e.target.value);
@@ -79,6 +80,13 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
     const handleModeChange = (event) => {
       setLaunchNewContainer(event.target.checked);
     };
+
+    const resetAll = () =>{
+      setSpecification([]);
+      setPlaceHolder("");
+      setIsLoading(false);
+      setVisited([]);
+    }
     
     const checkInPut = (input) =>{
         var set = new Set(["1","2","3"]); 
@@ -120,6 +128,7 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
     const onSubmitBTNClick = async () => {
         let workflow_specification = [];
         var i;
+        setErrorText("");
         console.log(specification);
         for(i = 0;i < specification.length;i++){
             workflow_specification.push(specification[i].split(','));
@@ -137,16 +146,21 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
         },{timeout:250*1000})
         .then((res)=>{
             console.log(res);
-            if(res.status === 200){
+            if(res.data !== "FAILED\n"){
               const split = res.data.split(":");
               setAnalyticsAddress(`http://10.176.67.91${analyticsMap[split[1]]}`);
+              setIsStart(true);
+            }else{
+              resetAll();
+              setErrorText("Fail to launch new workflow");
             }
         })
         .catch((error) => {
           console.log(error);
+          resetAll();
+          setErrorText("Fail to launch new workflow");
         });
         setIsLoading(false);
-        setIsStart(true);
         console.log({client_name:clientName,
         workflow,
         workflow_specification
@@ -245,9 +259,8 @@ export const NewWorkFlow = ({handleWorkFlowNameChange,
           </div>
         </Grid>
         <Grid item xs={12}>
-          <h3>
-          {isStart? `workflow : ${workFlowName} client : ${clientName} started`:null}
-          </h3>
+          {isStart? <h3>{`workflow : ${workflowNameMap[workFlowName]} client : ${clientName} started`}</h3>:null}
+          {errorText? <h3>{`${errorText}`}</h3>:null}
         </Grid>
         </Grid>
         </div>
